@@ -1,0 +1,16 @@
+# Dev dependencies - packages for testing, formatting, linting, etc
+
+-r requirements.txt
+
+black
+factory-boy
+Faker
+flake8
+flask-shell-ipython
+ipython
+pep8-naming
+jedi
+pylint
+pytest
+mock
+coverage

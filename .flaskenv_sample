@@ -1,0 +1,4 @@
+FLASK_ENV=development
+FLASK_APP=autoapp.py
+DATABASE_URI=sqlite:///dev.db
+LOG_TO_STDOUT=True

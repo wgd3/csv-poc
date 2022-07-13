@@ -1,0 +1,9 @@
+# Flask-related Dependencies
+Flask
+Flask-Migrate
+Flask-SQLAlchemy
+flask-restx
+
+# Other dependencies
+environs
+sqlalchemy
