@@ -24,19 +24,21 @@ def guess_column_type(content) -> str:
     current_app.logger.debug(
         f"Attempting to parse type of content for input: {content}"
     )
+
+    # start with numbers, since text and datetime will return
+    # False here
+    if isinstance(content, int):
+        current_app.logger.debug(
+            f"Input appears to be a number, matched pattern '^\d+$'"
+        )
+        return "number"
+
     match = re.search(r"(\d+/\d+/\d+)", content)
     if match:
         current_app.logger.debug(
             f"Input appears to be a date, matched pattern '(\d+/\d+/\d+)'"
         )
         return "datetime"
-
-    match = re.search(r"^\d+$", content)
-    if match or isinstance(content, int):
-        current_app.logger.debug(
-            f"Input appears to be a number, matched pattern '^\d+$'"
-        )
-        return "number"
 
     current_app.logger.debug(
         "Checks for datetime and number failed, assuming plain text"
@@ -55,7 +57,7 @@ def parse_columns(file_path: str, file_id: int):
 
     Returns:
         A list of Column instances that have been created and added to the
-        database session but HAVE NOT been commited yet.
+        database session but HAVE NOT been committed yet.
     """
     try:
         with open(file_path, mode="r") as csv_file:

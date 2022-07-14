@@ -3,16 +3,13 @@ from typing import List
 from flask import current_app
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
-import csv
 import os
 from pathlib import Path
 
 from csv_poc.extensions import db
-from csv_poc.database.models import File, Column
+from csv_poc.database.models import File
 from csv_poc.utils.exc import (
-    InvalidMetadataException,
     InvalidFileTypeException,
-    UnreadableFileException,
     DatabaseOpsException,
     FileNotFoundException,
     FilesystemException,
@@ -22,7 +19,7 @@ from csv_poc.utils.file import parse_columns
 from sqlalchemy.exc import OperationalError, IntegrityError
 
 
-def allowed_file(filename):
+def allowed_file(filename):  # pragma: no cover
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower()

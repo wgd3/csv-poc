@@ -6,6 +6,17 @@ import datetime as dt
 from csv_poc.extensions import db
 
 
+class DateTimeEncoder(json.JSONEncoder):
+    """Simple serializer for Datetime objects"""
+
+    def default(self, o):
+        """Method called when serializing Datetime objects"""
+        if isinstance(o, (dt.datetime, dt.date)):
+            return o.isoformat()
+
+        return json.JSONEncoder.default(self, o)
+
+
 class CRUDMixin(object):
     """Mixin with convenience methods for CRUD (create, read, update, delete)"""
 
@@ -76,15 +87,16 @@ class PkModel(CRUDMixin, db.Model):
         if not path:
             path = self.__tablename__.lower()
 
-            def prepend_path(item):
-                item = item.lower()
+            def prepend_path(i):
+                """Utility method for handling period-delimited keys"""
+                item = i.lower()
                 if item.split(".", 1)[0] == path:
                     return item
                 if len(item) == 0:
                     return item
                 if item[0] != ".":
-                    item = ".%s" % item
-                item = "%s%s" % (path, item)
+                    item = f".{item}"
+                item = f"{path}{item}"
                 return item
 
             show[:] = [prepend_path(x) for x in show]
@@ -95,7 +107,7 @@ class PkModel(CRUDMixin, db.Model):
         properties = dir(self)
 
         for key in columns:
-            check = "%s.%s" % (path, key)
+            check = f"{path}.{key}"
             if check in hide or key in hidden:
                 continue
             if show_all or key is "id" or check in show or key in default:
@@ -108,7 +120,7 @@ class PkModel(CRUDMixin, db.Model):
                     ret_data[key] = getattr(self, key)
 
         for key in relationships:
-            check = "%s.%s" % (path, key)
+            check = f"{path}.{key}"
             if check in hide or key in hidden:
                 continue
             if show_all or check in show or key in default:
@@ -121,7 +133,7 @@ class PkModel(CRUDMixin, db.Model):
                             item.to_dict(
                                 show=show,
                                 hide=hide,
-                                path=("%s.%s" % (path, key.lower())),
+                                path=f"{path}.{key.lower()}",
                                 show_all=show_all,
                             )
                         )
@@ -133,7 +145,7 @@ class PkModel(CRUDMixin, db.Model):
                         ret_data[key] = getattr(self, key).to_dict(
                             show=show,
                             hide=hide,
-                            path=("%s.%s" % (path, key.lower())),
+                            path=f"{path}.{key.lower()}",
                             show_all=show_all,
                         )
                     else:
@@ -142,7 +154,7 @@ class PkModel(CRUDMixin, db.Model):
         for key in list(set(properties) - set(columns) - set(relationships)):
             if key.startswith("_"):
                 continue
-            check = "%s.%s" % (path, key)
+            check = f"{path}.{key}"
             if check in hide or key in hidden:
                 continue
             if show_all or check in show or key in default:
@@ -152,6 +164,8 @@ class PkModel(CRUDMixin, db.Model):
                         json.dumps(val, cls=DateTimeEncoder)
                     )
                 except:
+                    # "fail" gracefully and ignore the field that can't be
+                    # serialized
                     pass
 
         return ret_data

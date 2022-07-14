@@ -79,18 +79,15 @@ class FileListResource(Resource):
     instead of POST-ing to a route such as `/upload`
     """
 
-    # @ns.response(
-    #     HTTPStatus.OK.value,
-    #     HTTPStatus.OK.phrase,
-    #     model=get_file_list_model,
-    #     as_list=True,
-    # )
+    @ns.response(
+        HTTPStatus.OK.value, HTTPStatus.OK.phrase, model=get_file_list_model
+    )
     @ns.response(
         HTTPStatus.INTERNAL_SERVER_ERROR.value,
         HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
         model=error_model,
     )
-    @ns.marshal_with(get_file_list_model, as_list=True, code=HTTPStatus.OK)
+    # @ns.marshal_with(get_file_list_model, as_list=True, code=HTTPStatus.OK)
     def get(self):
         """GET handler which returns a list of files in the database
 

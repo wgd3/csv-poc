@@ -7,7 +7,7 @@ TEST_PATH = os.path.join(PROJECT_ROOT, "tests")
 
 TESTING = True
 DEBUG = False
-UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, "uploads")
+UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, "tmp/uploads")
 ALLOWED_EXTENSIONS = {"csv"}
 MAX_CONTENT_LENGTH = 16 * 1000 * 1000
 SERVER_NAME = "server"

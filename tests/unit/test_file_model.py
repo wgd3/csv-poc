@@ -41,9 +41,18 @@ class TestFileModel:
         except IntegrityError as ie:
             assert "files.path" in str(ie)
 
-    def test_file_serialization(self, db):
+    def test_default_file_serialization(self, db):
         file = File.create(name="test", path="test")
-        assert file.to_json() == {
+        assert file.to_dict() == {
+            "id": file.id,
+            "name": file.name,
+            # "path": file.path,
+            # "columns": file.columns,
+        }
+
+    def test_added_fields_file_serialization(self, db):
+        file = File.create(name="test", path="test")
+        assert file.to_dict(show=["path", "columns"]) == {
             "id": file.id,
             "name": file.name,
             "path": file.path,

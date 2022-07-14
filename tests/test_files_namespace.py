@@ -21,6 +21,7 @@ class TestFileNamespace:
         file = File.create(name="testing", path="testing")
         response = client.get(url_for("api_v1.get_file_list"))
         data = response.get_json()
+        print(data)
         assert response.status_code == 500
         assert data["message"] == "test message"
         assert data["data"] is None
