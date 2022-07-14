@@ -8,3 +8,6 @@ flask-restx
 environs
 sqlalchemy
 click
+
+# for running Flask app in a container
+gunicorn

@@ -3,7 +3,18 @@
 This project provides a small, Flask-based API for processing CSV files.
 
 ## Getting Started - Docker
-UPDATE THIS AREA ONCE DOCKER IS INVOLVED
+
+The easiest way to start working with this project is by using Docker (no installing requirements in a virtual environment!). Once Docker is up and running on your system, these commands will run the applicaiton:
+
+```shell
+# if you want the container to run in the shell (not in the background)
+$ docker-compose up web
+
+# if you want the container to run in the background
+$ docker-compose up -d web
+```
+
+Once up and running, the Swagger page for the API should be available at [http://127.0.0.1:5000/api/v1](127.0.0.1:5000/api/v1)
 
 ## Getting Started - Local/Development
 
@@ -51,22 +62,45 @@ Though this is a very small API, this project embraces Flask's [Blueprint](https
 Directory structure is laid out like so:
 
 ```shell script
-csv_poc/
-├── api
-│   └── v1
-│       └── __init__.py
-├── database
-│   └── __init__.py
-└── utils
-    └── exc.py
-├── app.py
-├── extensions.py
-├── settings.py
+csv-poc/
+├── csv_poc
+│   ├── api
+│   │   └── v1
+│   ├── database
+│   │   └── models
+│   └── utils
+├── logs
+├── migrations
+│   └── versions
+└── tests
+    ├── functional
+    └── unit
+
 
 ```
 
-UPDATE THIS WITH PER-DIRECTORY DESCRIPTIONS
+Some directories that may stand out:
+
+- `migrations` Thanks to `alembic` and `flask-migrate` packages, database initialization and migration is easily handled with the Flask CLI. The "migrations" are stored here.
+- `csv_poc/api/v1` Using Flask's Blueprint system, and a logical grouping of files within the `v1` directory, it becomes very easy to introduce different versions of the API in the future.
 
 ### Database
 
-This project uses SQLite for the lightweight needs of the API. 
+This project uses SQLite for the lightweight needs of the API. In the `docker-compose.yml` file you can see how to use an alternative datastore such as Postgresql.
+
+## Commands
+
+Flask uses the `click` package behind-the-scenes to enable custom commands. The ones defined for this project are located in [csv_poc/commands.py](csv_poc/commands.py). They are intended to make certain actions a little easier:
+
+| Command | Purpose                                                                                                      |
+|---------|--------------------------------------------------------------------------------------------------------------|
+| `test`   | Run all test suites for the application. Optionally can use the `-c` flag to also generate a coverage report. |
+| `postman` | Generates a Postman collection automatically from the application's API.                                     |
+
+All commands support the `--help` flag for details on additional options with each command.
+
+## Testing
+
+For running tests, see the previous section [Commands](#commands).
+
+Pytest is used with this application in order to run both unit and functional tests. The tests are arranged by directory accordingly.

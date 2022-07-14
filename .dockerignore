@@ -1,0 +1,8 @@
+.flaskenv
+Dockerfile
+docker-compose.yml
+venv
+logs
+htmlcov
+.pytest_cache
+.idea

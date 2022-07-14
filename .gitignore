@@ -228,6 +228,7 @@ $RECYCLE.BIN/
 
 # dev databases
 *.db
+db/
 logs/
 tests/**/*log*
 migrations/old_versions/

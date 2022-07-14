@@ -1,0 +1,32 @@
+services:
+  web:
+    image: csv_poc
+    build: .
+    command: gunicorn -b 0.0.0.0:5000 csv_poc.wsgi:app
+    env_file:
+      - ./.flaskenv
+    environment:
+      - DATABASE_URI=sqlite:////db/dev.db
+#      - DATABASE_URI=postgresql://foo:bar@db/dev
+      - UPLOAD_FOLDER=/code/csv_poc/uploads
+    volumes:
+      - ./csv_poc:/code/csv_poc
+      - ./db/:/db/
+      - ./tmp/uploads:/code/csv_poc/uploads
+    ports:
+      - "5000:5000"
+
+##
+## Optional, alternative data store. If you wanted to use a Postgres (or any other DB), you can point docker-compose
+## to a second service and link it to the `web` service
+##
+#  db:
+#    image: postgres
+#    environment:
+#      POSTGRES_USER: foo
+#      POSTGRES_PASSWORD: bar
+#      POSTGRES_DB: dev
+#    volumes:
+#      - ./db/:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"
