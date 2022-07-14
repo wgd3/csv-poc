@@ -134,6 +134,11 @@ class FileListResource(Resource):
                 "message": dbe.message,
                 "data": dbe.data,
             }, HTTPStatus.BAD_REQUEST
+        except InvalidFileTypeException as invalid:
+            return {
+                "message": invalid.message,
+                "data": invalid.data,
+            }, HTTPStatus.BAD_REQUEST
         except CsvPocException as e:
             return {
                 "message": e.message,

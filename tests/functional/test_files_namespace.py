@@ -1,9 +1,13 @@
 from flask import url_for
-import pytest
 import mock
+import os
 
 from csv_poc.database.models import File
 from csv_poc.utils.exc import DatabaseOpsException
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.join(HERE, "..", os.pardir)
+TEST_PATH = os.path.join(PROJECT_ROOT, "tests")
 
 
 class TestFileNamespace:
@@ -54,3 +58,32 @@ class TestFileNamespace:
         assert response.status_code == 500
         assert data["message"] == "test message"
         assert data["data"] is None
+
+    def test_upload_file_success(self, app, db, client):
+        data = {}
+        file_path = os.path.join(PROJECT_ROOT, "sample.csv")
+        with open(file_path, "rb") as file:
+            data["file"] = file
+            response = client.post(
+                url_for("api_v1.get_file_list"),
+                data=data,
+                follow_redirects=True,
+                content_type="multipart/form-data",
+            )
+            resp_json = response.get_json()
+            assert "sample.csv" in resp_json["name"]
+
+    def test_upload_file_bad_ext(self, app, db, client):
+        data = {}
+        file_path = os.path.join(PROJECT_ROOT, "README.md")
+        with open(file_path, "rb") as file:
+            data["file"] = file
+            response = client.post(
+                url_for("api_v1.get_file_list"),
+                data=data,
+                follow_redirects=True,
+                content_type="multipart/form-data",
+            )
+            resp_json = response.get_json()
+            assert response.status_code == 400
+            assert resp_json["message"] is not None
