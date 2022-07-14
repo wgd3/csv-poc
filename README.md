@@ -7,6 +7,9 @@ This project provides a small, Flask-based API for processing CSV files.
 The easiest way to start working with this project is by using Docker (no installing requirements in a virtual environment!). Once Docker is up and running on your system, these commands will run the applicaiton:
 
 ```shell
+# rename the sample environment file (make sure you check the values!)
+$ mv .flaskenv_sample .flaskenv
+
 # if you want the container to run in the shell (not in the background)
 $ docker-compose up web
 
@@ -51,7 +54,19 @@ $ flask db migrate
 $ flask run
 ```
 
-With all the defaults being used, the API Swagger page can now be accessed at [http://127.0.0.1:5000/api/v1/](http://127.0.0.1:5000/api/v1/)
+## Interacting with the API
+
+Whether you use Docker or run the app locally, the API Swagger page can now be accessed at [http://127.0.0.1:5000/api/v1/](http://127.0.0.1:5000/api/v1/). This page provides an interactive way to see all the routes and test their functionality. At the bottom of the page it also lists the "models", or data structures, registered with the API.
+
+From a local shell environment, you can also simply call `cURL`:
+
+```shell
+$ curl -X 'GET' \
+  'http://127.0.0.1:5000/api/v1/files' \
+  -H 'accept: application/json'
+```
+
+Lastly, you can set up Postman to interact with the API. See the [Commands](#commands) section on how to generate a Postman collection automatically, and how to show all available routes from the CLI.
 
 ## Architecture
 
@@ -92,10 +107,11 @@ This project uses SQLite for the lightweight needs of the API. In the `docker-co
 
 Flask uses the `click` package behind-the-scenes to enable custom commands. The ones defined for this project are located in [csv_poc/commands.py](csv_poc/commands.py). They are intended to make certain actions a little easier:
 
-| Command | Purpose                                                                                                      |
-|---------|--------------------------------------------------------------------------------------------------------------|
-| `test`   | Run all test suites for the application. Optionally can use the `-c` flag to also generate a coverage report. |
-| `postman` | Generates a Postman collection automatically from the application's API.                                     |
+| Command | Purpose                                                                                                                                                                         |
+|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `test`   | Run all test suites for the application. Optionally can use the `-c` flag to also generate a coverage report.                                                                   |
+| `postman` | Generates a Postman collection automatically from the application's API. This command has a few flags, namely `-f` which allows you to output to a file instead of the console. |
+| `routes` | Built-in functionality from Flask, this command simply outputs all the application routes to the console in a pretty, formatted fashion.                                        |
 
 All commands support the `--help` flag for details on additional options with each command.
 
