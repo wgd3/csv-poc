@@ -232,3 +232,5 @@ logs/
 tests/**/*log*
 migrations/old_versions/
 
+# temp data
+tmp/

@@ -1,7 +1,8 @@
 """API Namespace for handling CSV files"""
 from flask_restx import Resource, fields, Namespace
 from http import HTTPStatus
-from flask import current_app
+from flask import current_app, request
+from werkzeug.datastructures import FileStorage
 
 from csv_poc.utils.exc import (
     InvalidMetadataException,
@@ -9,6 +10,7 @@ from csv_poc.utils.exc import (
     UnreadableFileException,
     DatabaseOpsException,
     FileNotFoundException,
+    CsvPocException,
 )
 
 from .files_dao import FileDAO
@@ -61,6 +63,11 @@ error_model = ns.model(
     },
 )
 
+upload_parser = ns.parser()
+upload_parser.add_argument(
+    "file", location="files", type=FileStorage, required=True
+)
+
 
 @ns.route("", endpoint="get_file_list")
 class FileListResource(Resource):
@@ -72,20 +79,23 @@ class FileListResource(Resource):
     instead of POST-ing to a route such as `/upload`
     """
 
-    @ns.response(
-        HTTPStatus.OK.value, HTTPStatus.OK.phrase, model=get_file_list_model
-    )
+    # @ns.response(
+    #     HTTPStatus.OK.value,
+    #     HTTPStatus.OK.phrase,
+    #     model=get_file_list_model,
+    #     as_list=True,
+    # )
     @ns.response(
         HTTPStatus.INTERNAL_SERVER_ERROR.value,
         HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
         model=error_model,
     )
-    # @ns.marshal_with(get_file_list_model, as_list=True)
+    @ns.marshal_with(get_file_list_model, as_list=True, code=HTTPStatus.OK)
     def get(self):
         """GET handler which returns a list of files in the database
 
         Returns:
-            A list of files, with column data
+            A list of files
         """
         current_app.logger.debug(f"Retrieving list of files...")
         try:
@@ -109,13 +119,29 @@ class FileListResource(Resource):
         HTTPStatus.UNSUPPORTED_MEDIA_TYPE.phrase,
     )
     @ns.response(HTTPStatus.BAD_REQUEST.value, HTTPStatus.BAD_REQUEST.phrase)
+    @ns.expect(upload_parser)
     def post(self, **kwargs):
         """POST handler for file uploads
 
         Returns:
             Details for the file that was uploaded
         """
-        return None, HTTPStatus.CREATED
+        try:
+            args = upload_parser.parse_args()
+            uploaded_file: FileStorage = args["file"]
+            rv = FileDAO.add_file(uploaded_file)
+            current_app.logger.debug(f"Returning data:\n{rv}")
+            return rv, HTTPStatus.CREATED
+        except DatabaseOpsException as dbe:
+            return {
+                "message": dbe.message,
+                "data": dbe.data,
+            }, HTTPStatus.BAD_REQUEST
+        except CsvPocException as e:
+            return {
+                "message": e.message,
+                "data": e.data,
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @ns.route("/<int:file_id>", endpoint="get_file")

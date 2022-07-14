@@ -9,6 +9,9 @@ class Column(PkModel):
     `Column` has a many-to-one relationship with the `files` table.
     """
 
+    # set the default keys returned when serializing an instance
+    default_fields = ["id", "col_name", "col_index", "col_type"]
+
     __tablename__ = "columns"
     col_index = db.Column(db.Integer, nullable=False)
     col_name = db.Column(db.String, nullable=False)
@@ -20,4 +23,4 @@ class Column(PkModel):
     file_id = db.Column(db.Integer, db.ForeignKey("files.id"), nullable=False)
 
     def __repr__(self):
-        return f"<Column {self.col_name} has type {self.col_type}"
+        return f"<Column {self.col_name} has type {self.col_type}>"

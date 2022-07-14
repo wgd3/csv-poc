@@ -20,7 +20,9 @@ UPLOAD_FOLDER = env.str(
 )
 ALLOWED_EXTENSIONS = {"csv"}
 MAX_CONTENT_LENGTH = 16 * 1000 * 1000
-SERVER_NAME = env.str("SERVER_NAME", default="server")
+SERVER_NAME = env.str(
+    "SERVER_NAME", default="server" if ENV == "TESTING" else None
+)
 
 # Database Settings
 SQLALCHEMY_DATABASE_URI = env.str("DATABASE_URI", default="sqlite://")

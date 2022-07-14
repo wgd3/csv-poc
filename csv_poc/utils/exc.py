@@ -57,3 +57,9 @@ class FileNotFoundException(CsvPocException):
     """Used when a GET request is made with an ID that doesn't exist"""
 
     pass
+
+
+class FilesystemException(CsvPocException):
+    """Used when the server is unable to write to a local folder"""
+
+    pass
