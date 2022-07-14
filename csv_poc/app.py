@@ -16,6 +16,7 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 
+from csv_poc import commands
 from csv_poc.extensions import db, migrate
 from csv_poc.api.v1 import api_v1
 
@@ -39,6 +40,7 @@ def create_app(config_obj="csv_poc.settings") -> Flask:
 
     register_extensions(app)
     register_blueprints(app)
+    register_commands(app)
     configure_logger(app)
     return app
 
@@ -74,6 +76,16 @@ def register_blueprints(app: Flask) -> None:
         app:
     """
     app.register_blueprint(api_v1)
+
+
+def register_commands(app: Flask):
+    """Helper that adds custom CLI commands to the application
+
+    Args:
+        app: Flask instance
+    """
+    app.cli.add_command(commands.test)
+    app.cli.add_command(commands.postman)
 
 
 def configure_logger(app: Flask) -> None:

@@ -4,7 +4,7 @@
 
 black
 factory-boy
-Faker
+faker
 flake8
 flask-shell-ipython
 ipython

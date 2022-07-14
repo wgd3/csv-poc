@@ -106,11 +106,12 @@ class PkModel(CRUDMixin, db.Model):
         relationships = self.__mapper__.relationships.keys()
         properties = dir(self)
 
+        key: str
         for key in columns:
             check = f"{path}.{key}"
             if check in hide or key in hidden:
                 continue
-            if show_all or key is "id" or check in show or key in default:
+            if show_all or key == "id" or check in show or key in default:
                 val = getattr(self, key)
                 if isinstance(val, (dt.datetime, dt.date)):
                     ret_data[key] = val.isoformat()

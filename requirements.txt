@@ -7,3 +7,4 @@ flask-restx
 # Other dependencies
 environs
 sqlalchemy
+click
