@@ -10,6 +10,85 @@ PROJECT_ROOT = os.path.join(HERE, "..", os.pardir)
 TEST_PATH = os.path.join(PROJECT_ROOT, "tests")
 
 
+class TestFileNamespaceQueryParams:
+    """Test suite for pagination/sorting query params"""
+
+    def setup(self):
+        """Ensure there is data available to be sorted/paginated
+
+        Using `range(1,6)` means that the database primary keys will match the
+        index (first database row primary key == 1), and make lookup in JSON
+        responses easier
+        """
+        for i in range(1, 6):
+            File.create(name=f"file{i}", path=f"path{i}")
+
+    def test_get_file_list_id_sorted_asc(self, app, db, client):
+        params = {"sort_by": "id", "sort_order": "asc"}
+        response = client.get(
+            url_for(("api_v1.get_file_list")), query_string=params
+        )
+        data = response.get_json()
+        assert response.status_code == 200
+        assert data[0]["id"] == 1
+        assert data[0]["name"] == f"file1"
+
+    def test_get_file_list_id_sorted_desc(self, app, db, client):
+        params = {"sort_by": "id", "sort_order": "desc"}
+        response = client.get(
+            url_for(
+                ("api_v1.get_file_list"),
+            ),
+            query_string=params,
+        )
+        data = response.get_json()
+        assert response.status_code == 200
+        assert data[0]["id"] == 5
+        assert data[0]["name"] == f"file5"
+
+    def test_get_file_list_name_sorted_asc(self, app, db, client):
+        params = {"sort_by": "name", "sort_order": "asc"}
+        response = client.get(
+            url_for(("api_v1.get_file_list")), query_string=params
+        )
+        data = response.get_json()
+        assert response.status_code == 200
+        assert data[0]["id"] == 1
+        assert data[0]["name"] == f"file1"
+
+    def test_get_file_list_name_sorted_desc(self, app, db, client):
+        params = {"sort_by": "name", "sort_order": "desc"}
+        response = client.get(
+            url_for(("api_v1.get_file_list")), query_string=params
+        )
+        data = response.get_json()
+        assert response.status_code == 200
+        assert data[0]["id"] == 5
+        assert data[0]["name"] == f"file5"
+
+    def test_get_file_list_pagination(self, app, db, client):
+        params = {"per_page": 2, "page": 2}
+        response = client.get(
+            url_for(("api_v1.get_file_list")), query_string=params
+        )
+        data = response.get_json()
+        assert response.status_code == 200
+        assert data[0]["id"] == 3
+        assert data[0]["name"] == "file3"
+
+    def test_get_file_list_pagination_defaults(self, app, db, client):
+        # create another 10 files so that pagination is able to be applied
+        # (defaults are page 1, per_page 10)
+        for i in range(6, 16):
+            File.create(name=f"file{i}", path=f"path{i}")
+        response = client.get(url_for(("api_v1.get_file_list")))
+        data = response.get_json()
+        assert response.status_code == 200
+        assert data[0]["id"] == 1
+        assert data[0]["name"] == "file1"
+        assert len(data) == 10
+
+
 class TestFileNamespace:
     def test_get_file_list(self, app, db, client):
         response = client.get(url_for("api_v1.get_file_list"))

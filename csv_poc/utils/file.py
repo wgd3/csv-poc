@@ -27,10 +27,8 @@ def guess_column_type(content) -> str:
 
     # start with numbers, since text and datetime will return
     # False here
-    if isinstance(content, int):
-        current_app.logger.debug(
-            f"Input appears to be a number, matched pattern '^\d+$'"
-        )
+    if isinstance(content, int) or isinstance(content, float):
+        current_app.logger.debug(f"Input appears to be an instance of 'int'")
         return "number"
 
     match = re.search(r"(\d+/\d+/\d+)", content)
@@ -67,23 +65,12 @@ def parse_columns(file_path: str, file_id: int):
             # extract header row and the first data row
             header_row: str = rows[0]
             content_row: str = rows[1] if len(rows) > 1 else None
-            # current_app.logger.debug(f"Header row:\n{header_row}")
-            # current_app.logger.debug(f"Content row:\n{content_row}")
-
-            # split the header row into individual columns
-            # column_names = header_row.split(",")
 
             # use `enumerate` here to access the index
             for idx, name in enumerate(header_row):
-                # current_app.logger.debug(
-                #     f"Evaluating column {idx} named '{name}'"
-                # )
                 if content_row:
                     column_content = content_row[idx]
                     col_type = guess_column_type(content=column_content)
-                    # current_app.logger.debug(
-                    #     f"Set column '{name}' to type '{col_type}'"
-                    # )
 
                 # finally, create a new Column instance but do not save at this
                 # time

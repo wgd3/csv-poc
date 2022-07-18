@@ -38,7 +38,7 @@ class FileDAO(object):
         files stored in the database
 
         Args:
-            **kwargs: TODO potential to be used for query parameters (filtering)
+            **kwargs: A dictionary of pagination and sorting settings
 
         Returns:
             A list of File objects, without their `columns` property.
@@ -47,7 +47,15 @@ class FileDAO(object):
             DatabaseOpsException: Error occurred while accessing the database
         """
         try:
-            files = [file.to_dict() for file in File.query.all()]
+            query = File.query.paginate(
+                per_page=kwargs.get("per_page"), page=kwargs.get("page")
+            )
+            files = [file.to_dict() for file in query.items]
+            if kwargs.get("sort_by") is not None:
+                _reverse = kwargs.get("sort_order") == "desc"
+                files.sort(
+                    key=lambda f: f[kwargs.get("sort_by")], reverse=_reverse
+                )
             return files
         except OperationalError as oe:
             raise DatabaseOpsException(

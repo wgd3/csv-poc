@@ -103,6 +103,10 @@ Some directories that may stand out:
 
 This project uses SQLite for the lightweight needs of the API. In the `docker-compose.yml` file you can see how to use an alternative datastore such as Postgresql.
 
+There is a table for tracking database migrations, but that is not used for storing any data related to the API. The core schema consists of just 2 tables with a one-to-many relation:
+
+![Database schema](./schema.png)
+
 ## Commands
 
 Flask uses the `click` package behind-the-scenes to enable custom commands. The ones defined for this project are located in [csv_poc/commands.py](csv_poc/commands.py). They are intended to make certain actions a little easier:

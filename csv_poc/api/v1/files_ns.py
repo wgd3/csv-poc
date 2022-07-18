@@ -14,6 +14,7 @@ from csv_poc.utils.exc import (
 )
 
 from .files_dao import FileDAO
+from .paging_parser import pagination_parser
 
 ns = Namespace("files", description="CSV File Operations")
 
@@ -79,6 +80,8 @@ class FileListResource(Resource):
     instead of POST-ing to a route such as `/upload`
     """
 
+    page_parser = pagination_parser.copy()
+
     @ns.response(
         HTTPStatus.OK.value, HTTPStatus.OK.phrase, model=get_file_list_model
     )
@@ -87,6 +90,7 @@ class FileListResource(Resource):
         HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
         model=error_model,
     )
+    @ns.expect(page_parser)
     # @ns.marshal_with(get_file_list_model, as_list=True, code=HTTPStatus.OK)
     def get(self):
         """GET handler which returns a list of files in the database
@@ -94,9 +98,11 @@ class FileListResource(Resource):
         Returns:
             A list of files
         """
+        current_app.logger.debug("Parsing args...")
+        args = self.page_parser.parse_args()
         current_app.logger.debug(f"Retrieving list of files...")
         try:
-            files = FileDAO.list_files()
+            files = FileDAO.list_files(**args)
             return files, HTTPStatus.OK
         except DatabaseOpsException as dbe:
             current_app.logger.error(dbe.message)
